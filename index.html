@@ -3,55 +3,71 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>公因數互動練習</title>
+<title>公因數小島探險</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { background: #f8f8f8; display: flex; justify-content: center; padding: 20px; font-family: sans-serif; }
-.wrap { padding: 1rem 0.5rem 1.5rem; display: flex; flex-direction: column; align-items: center; gap: 0.85rem; max-width: 700px; width: 100%; background: #fff; border-radius: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+.wrap { padding: 1rem 0.5rem 1.5rem; display: flex; flex-direction: column; align-items: center; gap: 0.85rem; max-width: 700px; width: 100%; background: #fff; border-radius: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); touch-action: none; }
 
 .level-bar { display: flex; gap: 8px; align-items: center; }
 .lvl-btn { padding: 6px 20px; border-radius: 20px; border: 2px solid #888; background: #eee; color: #333; font-size: 14px; cursor: pointer; }
 .lvl-btn.active { background: #185FA5; color: #fff; border-color: #185FA5; }
-.score-row { margin-left: 16px; font-size: 13px; color: #555; }
+.score-row { margin-left: 12px; font-size: 13px; color: #555; }
 .score-val { font-weight: 700; color: #111; }
 
 .q-row { display: flex; align-items: center; gap: 10px; font-size: 15px; color: #444; }
 .num-badge { font-size: 26px; font-weight: 700; color: #111; background: #f0f0f0; border: 2px solid #ccc; border-radius: 10px; padding: 3px 16px; }
 
-.stage-bar { font-size: 14px; font-weight: 700; padding: 5px 20px; border-radius: 20px; border: 2px solid #185FA5; background: #e6f0ff; color: #003a80; transition: background 0.3s; }
+.stage-bar { font-size: 14px; font-weight: 700; padding: 5px 20px; border-radius: 20px; border: 2px solid #185FA5; background: #e6f0ff; color: #003a80; }
 .stage-bar.gcd-mode { background: #fff3cc; color: #5a3000; border-color: #c87800; }
 
 .gcd-top { display: flex; flex-direction: column; align-items: center; gap: 4px; }
 .gcd-label { font-size: 13px; color: #555; }
 .gcd-zone { width: 320px; min-height: 52px; border-radius: 14px; border: 2px dashed #c8860a; background: #fff8e6; display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 12px; align-content: flex-start; }
-.gcd-zone.locked { opacity: 0.45; pointer-events: none; }
+.gcd-zone.locked { opacity: 0.4; pointer-events: none; }
 .gcd-zone.correct { border-color: #2a7a00; background: #e0f5c8; opacity: 1; }
 .gcd-note { font-size: 13px; color: #555; min-height: 18px; }
 .gcd-note b { color: #185FA5; }
 
 .arrow-row { font-size: 18px; color: #bbb; }
-
-.islands-row { display: flex; gap: 20px; justify-content: center; align-items: flex-start; }
-.island-col { display: flex; flex-direction: column; align-items: center; width: 210px; gap: 5px; }
+.islands-row { display: flex; gap: 16px; justify-content: center; align-items: flex-start; }
+.island-col { display: flex; flex-direction: column; align-items: center; width: 200px; gap: 5px; }
 .island-label { font-size: 13px; color: #444; }
-.island-zone { width: 200px; min-height: 90px; border-radius: 14px; border: 2px dashed #aaa; background: #f5f5f5; display: flex; flex-wrap: wrap; gap: 6px; padding: 8px; align-content: flex-start; transition: border-color 0.2s, background 0.2s; }
+.island-zone { width: 190px; min-height: 90px; border-radius: 14px; border: 2px dashed #aaa; background: #f5f5f5; display: flex; flex-wrap: wrap; gap: 6px; padding: 8px; align-content: flex-start; transition: border-color 0.2s, background 0.2s; }
 .island-zone.over { border-color: #185FA5; background: #dceeff; }
 .island-zone.correct { border-color: #2a7a00; background: #e0f5c8; }
-
 .zone-hint { font-size: 11px; color: #bbb; width: 100%; text-align: center; padding-top: 4px; pointer-events: none; }
 
-.chip { padding: 5px 11px; border-radius: 20px; font-size: 14px; font-weight: 700; cursor: grab; user-select: none; display: inline-block; border: 2px solid #777; background: #fff; color: #111; transition: transform 0.1s; }
+.chip {
+  padding: 6px 12px; border-radius: 20px;
+  font-size: 14px; font-weight: 700;
+  display: inline-block;
+  border: 2px solid #777; background: #fff; color: #111;
+  cursor: grab; user-select: none; -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  touch-action: none;
+}
 .chip:active { cursor: grabbing; }
+.chip.dragging { opacity: 0.4; }
 .chip.pool-chip { background: #fff; color: #111; border-color: #777; }
-.chip.pool-chip.used-a { background: #cce3ff; color: #002d6e; border-color: #2266cc; }
-.chip.pool-chip.used-b { background: #ffe5b0; color: #4a2800; border-color: #c87800; }
+.chip.pool-chip.used-a    { background: #cce3ff; color: #002d6e; border-color: #2266cc; }
+.chip.pool-chip.used-b    { background: #ffe5b0; color: #4a2800; border-color: #c87800; }
 .chip.pool-chip.used-both { background: #e0d0ff; color: #2d0060; border-color: #7744cc; }
-.chip.in-a { background: #cce3ff; color: #002d6e; border-color: #2266cc; }
-.chip.in-b { background: #ffe5b0; color: #4a2800; border-color: #c87800; }
+.chip.in-a   { background: #cce3ff; color: #002d6e; border-color: #2266cc; }
+.chip.in-b   { background: #ffe5b0; color: #4a2800; border-color: #c87800; }
 .chip.in-gcd { background: #c8f0a0; color: #1a4400; border-color: #4a9900; }
 .chip.gcd-pick { outline: 3px solid #c87800; outline-offset: 2px; }
 .chip.shake { animation: shake 0.3s; }
 @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+
+#drag-ghost {
+  position: fixed; pointer-events: none; z-index: 9999;
+  padding: 6px 12px; border-radius: 20px;
+  font-size: 14px; font-weight: 700;
+  border: 2px solid #555; background: #fff; color: #111;
+  opacity: 0.85; display: none; white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+}
 
 .pool-row { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; max-width: 640px; min-height: 44px; padding: 10px 12px; border-radius: 12px; background: #ececec; border: 1px solid #ddd; }
 .pool-row.over { background: #dceeff; }
@@ -64,7 +80,7 @@ body { background: #f8f8f8; display: flex; justify-content: center; padding: 20p
 .btn-next:hover { background: #f0f0f0; }
 
 .feedback { font-size: 15px; min-height: 22px; text-align: center; }
-.feedback.ok { color: #1a6000; }
+.feedback.ok  { color: #1a6000; }
 .feedback.bad { color: #900; }
 
 .legend { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; font-size: 12px; color: #555; }
@@ -73,8 +89,11 @@ body { background: #f8f8f8; display: flex; justify-content: center; padding: 20p
 </style>
 </head>
 <body>
+
+<div id="drag-ghost"></div>
+
 <div class="wrap">
-  <div style="font-size:20px;font-weight:700;color:#185FA5;margin-bottom:4px">🏝 公因數小島探險</div>
+  <div style="font-size:20px;font-weight:700;color:#185FA5;margin-bottom:2px">🏝 公因數小島探險</div>
 
   <div class="level-bar">
     <span style="font-size:13px;color:#555">難度：</span>
@@ -99,18 +118,16 @@ body { background: #f8f8f8; display: flex; justify-content: center; padding: 20p
     <div class="islands-row">
       <div class="island-col">
         <div class="island-label">🏝 <span id="label-a">12 的因數</span></div>
-        <div class="island-zone" id="zone-a"
-          ondragover="onOver(event,'a')" ondragleave="onLeave('a')" ondrop="onDrop(event,'a')"></div>
+        <div class="island-zone" id="zone-a"></div>
       </div>
       <div class="island-col">
         <div class="island-label">🏝 <span id="label-b">18 的因數</span></div>
-        <div class="island-zone" id="zone-b"
-          ondragover="onOver(event,'b')" ondragleave="onLeave('b')" ondrop="onDrop(event,'b')"></div>
+        <div class="island-zone" id="zone-b"></div>
       </div>
     </div>
   </div>
 
-  <div style="font-size:12px;color:#888" id="hint-text">從下方拖曳數字到對應島嶼</div>
+  <div style="font-size:12px;color:#888" id="hint-text">拖曳數字到對應島嶼；拖回下方可移除</div>
 
   <div class="legend">
     <div class="legend-item"><div class="dot" style="background:#cce3ff;border:1.5px solid #2266cc"></div> 已放入左島</div>
@@ -131,14 +148,17 @@ body { background: #f8f8f8; display: flex; justify-content: center; padding: 20p
 let level=1, numA=12, numB=18;
 let correctA=[], correctB=[], correctGcd=[];
 let chipsA=[], chipsB=[], chipsGcd=[];
-let stage='factor';
-let scoreRight=0, scoreTotal=0;
-let gcdPick=null;
 let poolNums=[];
+let stage='factor';
+let gcdPick=null;
+let scoreRight=0, scoreTotal=0;
+let dragInfo=null;
+const ghost=document.getElementById('drag-ghost');
 
 function ri(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
 function factors(n){let f=[];for(let i=1;i<=n;i++)if(n%i===0)f.push(i);return f;}
 function gcd(a,b){return b===0?a:gcd(b,a%b);}
+function zoneEl(z){return document.getElementById(z==='gcd'?'zone-gcd':'zone-'+z);}
 
 function setLevel(l){
   level=l;
@@ -160,9 +180,9 @@ function newQuestion(){
   const target=level===1?10:15;
   stage='factor'; gcdPick=null;
   chipsA=[]; chipsB=[]; chipsGcd=[];
+  dragInfo=null; ghost.style.display='none';
 
-  correctA=factors(numA);
-  correctB=factors(numB);
+  correctA=factors(numA); correctB=factors(numB);
   correctGcd=factors(gcd(numA,numB));
 
   document.getElementById('num-a').textContent=numA;
@@ -174,9 +194,12 @@ function newQuestion(){
   document.getElementById('feedback').className='feedback';
   document.getElementById('stage-bar').textContent='📋 第一階段：找出各自的因數';
   document.getElementById('stage-bar').className='stage-bar';
-  document.getElementById('hint-text').textContent='從下方拖曳數字到對應島嶼';
+  document.getElementById('hint-text').textContent='拖曳數字到對應島嶼；拖回下方可移除';
   document.getElementById('btn-main').textContent='✅ 確認因數';
   document.getElementById('btn-main').disabled=false;
+  document.getElementById('zone-gcd').className='gcd-zone locked';
+  document.getElementById('zone-a').className='island-zone';
+  document.getElementById('zone-b').className='island-zone';
 
   const valid=new Set([...correctA,...correctB].filter(n=>n<=bigger));
   let tries=0;
@@ -186,38 +209,21 @@ function newQuestion(){
     tries++;
   }
   poolNums=[...valid].sort((a,b)=>a-b);
-
-  renderPool();
-  renderZone('a'); renderZone('b'); renderZone('gcd');
-  document.getElementById('zone-gcd').className='gcd-zone locked';
-  document.getElementById('zone-a').className='island-zone';
-  document.getElementById('zone-b').className='island-zone';
+  renderAll();
 }
 
-function zoneEl(z){ return document.getElementById(z==='gcd'?'zone-gcd':'zone-'+z); }
+function renderAll(){ renderPool(); renderZone('a'); renderZone('b'); renderZone('gcd'); }
 
 function renderPool(){
   const el=document.getElementById('pool');
   el.innerHTML='';
   poolNums.forEach(n=>{
     const inA=chipsA.includes(n), inB=chipsB.includes(n);
-    const d=document.createElement('div');
     let cls='chip pool-chip';
     if(inA&&inB) cls+=' used-both';
     else if(inA) cls+=' used-a';
     else if(inB) cls+=' used-b';
-    d.className=cls;
-    d.textContent=n;
-    d.draggable=stage==='factor';
-    if(stage==='factor'){
-      d.ondragstart=e=>{
-        const pay=JSON.stringify({num:n,from:'pool'});
-        e.dataTransfer.setData('application/json',pay);
-        e.dataTransfer.setData('text/plain',pay);
-        e.dataTransfer.effectAllowed='move';
-      };
-    }
-    el.appendChild(d);
+    el.appendChild(mkChip(n,'pool',cls));
   });
 }
 
@@ -232,67 +238,134 @@ function renderZone(z){
     el.appendChild(h); return;
   }
   arr.forEach(n=>{
-    const d=document.createElement('div');
     let cls='chip '+(z==='a'?'in-a':z==='b'?'in-b':'in-gcd');
     if(stage==='gcd'&&gcdPick&&gcdPick.num===n&&gcdPick.zone===z) cls+=' gcd-pick';
-    d.className=cls;
-    d.textContent=n;
-    d.draggable=false;
+    const d=mkChip(n,z,cls);
     if(stage==='gcd'&&(z==='a'||z==='b')){
       d.style.cursor='pointer';
-      d.onclick=e=>{ e.stopPropagation(); gcdClick(n,z,d); };
+      d.onclick=e=>{ e.stopPropagation(); gcdClick(n,z); };
     }
     el.appendChild(d);
   });
 }
 
-function onOver(e,z){
-  if(stage!=='factor')return;
-  e.preventDefault(); e.stopPropagation();
-  e.dataTransfer.dropEffect='move';
-  zoneEl(z).classList.add('over');
-}
-function onLeave(z){ zoneEl(z).classList.remove('over'); }
-function onDrop(e,toZone){
-  if(stage!=='factor')return;
-  e.preventDefault(); e.stopPropagation();
-  onLeave(toZone);
-  let raw=e.dataTransfer.getData('application/json')||e.dataTransfer.getData('text/plain')||e.dataTransfer.getData('text');
-  try{
-    const {num}=JSON.parse(raw);
-    addToZone(num,toZone);
-  }catch(_){}
+function mkChip(num, from, cls){
+  const d=document.createElement('div');
+  d.className=cls;
+  d.textContent=num;
+  if(stage==='factor'){
+    d.addEventListener('mousedown', e=>startDrag(e,num,from,d), {passive:false});
+    d.addEventListener('touchstart', e=>startDragTouch(e,num,from,d), {passive:false});
+  }
+  return d;
 }
 
-function addToZone(num,z){
-  const arr=z==='a'?chipsA:chipsB;
-  if(arr.includes(num))return;
-  arr.push(num);
-  arr.sort((a,b)=>a-b);
-  renderZone(z);
-  renderPool();
+function startDrag(e,num,from,el){
+  if(stage!=='factor') return;
+  e.preventDefault();
+  dragInfo={num,from};
+  showGhost(num,e.clientX,e.clientY);
+  el.classList.add('dragging');
+  function onMove(ev){ moveGhost(ev.clientX,ev.clientY); highlightUnder(ev.clientX,ev.clientY); }
+  function onUp(ev){
+    document.removeEventListener('mousemove',onMove);
+    document.removeEventListener('mouseup',onUp);
+    el.classList.remove('dragging');
+    ghost.style.display='none';
+    clearHighlights();
+    const toZone=getZoneAt(ev.clientX,ev.clientY);
+    if(toZone) doMove(num,from,toZone);
+    dragInfo=null;
+  }
+  document.addEventListener('mousemove',onMove);
+  document.addEventListener('mouseup',onUp);
+}
+
+function startDragTouch(e,num,from,el){
+  if(stage!=='factor') return;
+  e.preventDefault();
+  const t=e.touches[0];
+  dragInfo={num,from};
+  showGhost(num,t.clientX,t.clientY);
+  el.classList.add('dragging');
+  function onMove(ev){
+    ev.preventDefault();
+    const tt=ev.touches[0];
+    moveGhost(tt.clientX,tt.clientY);
+    highlightUnder(tt.clientX,tt.clientY);
+  }
+  function onEnd(ev){
+    el.classList.remove('dragging');
+    ghost.style.display='none';
+    clearHighlights();
+    const tt=ev.changedTouches[0];
+    const toZone=getZoneAt(tt.clientX,tt.clientY);
+    if(toZone) doMove(num,from,toZone);
+    dragInfo=null;
+    document.removeEventListener('touchmove',onMove);
+    document.removeEventListener('touchend',onEnd);
+  }
+  document.addEventListener('touchmove',onMove,{passive:false});
+  document.addEventListener('touchend',onEnd);
+}
+
+function showGhost(num,cx,cy){ ghost.textContent=num; ghost.style.display='block'; moveGhost(cx,cy); }
+function moveGhost(cx,cy){ ghost.style.left=(cx-20)+'px'; ghost.style.top=(cy-20)+'px'; }
+
+const DROP_ZONES=['a','b','pool'];
+function getZoneAt(cx,cy){
+  for(const z of DROP_ZONES){
+    const el=z==='pool'?document.getElementById('pool'):zoneEl(z);
+    const r=el.getBoundingClientRect();
+    if(cx>=r.left&&cx<=r.right&&cy>=r.top&&cy<=r.bottom) return z;
+  }
+  return null;
+}
+function highlightUnder(cx,cy){
+  clearHighlights();
+  const z=getZoneAt(cx,cy);
+  if(z&&z!=='pool') zoneEl(z).classList.add('over');
+}
+function clearHighlights(){
+  ['a','b'].forEach(z=>zoneEl(z).classList.remove('over'));
+  document.getElementById('pool').classList.remove('over');
+}
+
+function doMove(num,from,to){
+  if(from===to) return;
+  if(from==='pool'&&(to==='a'||to==='b')){
+    const arr=to==='a'?chipsA:chipsB;
+    if(!arr.includes(num)){ arr.push(num); arr.sort((a,b)=>a-b); }
+    renderZone(to); renderPool(); return;
+  }
+  if((from==='a'||from==='b')&&to==='pool'){
+    if(from==='a') chipsA=chipsA.filter(x=>x!==num);
+    else chipsB=chipsB.filter(x=>x!==num);
+    renderZone(from); renderPool(); return;
+  }
+  if((from==='a'||from==='b')&&(to==='a'||to==='b')&&from!==to){
+    if(from==='a') chipsA=chipsA.filter(x=>x!==num);
+    else chipsB=chipsB.filter(x=>x!==num);
+    const arr=to==='a'?chipsA:chipsB;
+    if(!arr.includes(num)){ arr.push(num); arr.sort((a,b)=>a-b); }
+    renderZone(from); renderZone(to); renderPool(); return;
+  }
 }
 
 function gcdClick(num,zone){
-  if(stage!=='gcd')return;
-  if(gcdPick&&gcdPick.num===num&&gcdPick.zone===zone){
-    gcdPick=null; renderZone('a'); renderZone('b'); return;
-  }
+  if(stage!=='gcd') return;
+  if(gcdPick&&gcdPick.num===num&&gcdPick.zone===zone){ gcdPick=null; renderZone('a'); renderZone('b'); return; }
   if(!gcdPick){
-    gcdPick={num,zone};
-    renderZone('a'); renderZone('b');
+    gcdPick={num,zone}; renderZone('a'); renderZone('b');
     document.getElementById('feedback').textContent='👆 請在另一個島嶼點選相同的數字';
-    document.getElementById('feedback').className='feedback';
-    return;
+    document.getElementById('feedback').className='feedback'; return;
   }
   if(gcdPick.num===num&&gcdPick.zone!==zone){
     if(!chipsGcd.includes(num)){ chipsGcd.push(num); chipsGcd.sort((a,b)=>a-b); }
-    gcdPick=null;
-    renderZone('gcd'); renderZone('a'); renderZone('b');
+    gcdPick=null; renderZone('gcd'); renderZone('a'); renderZone('b');
     document.getElementById('feedback').textContent='';
   } else {
-    gcdPick={num,zone};
-    renderZone('a'); renderZone('b');
+    gcdPick={num,zone}; renderZone('a'); renderZone('b');
     document.getElementById('feedback').textContent='👆 請在另一個島嶼點選相同的數字';
     document.getElementById('feedback').className='feedback';
   }
@@ -326,36 +399,30 @@ function enterGcdStage(){
   stage='gcd'; gcdPick=null; chipsGcd=[];
   document.getElementById('stage-bar').textContent='🌊 第二階段：點選兩邊都有的數字→公因數';
   document.getElementById('stage-bar').className='stage-bar gcd-mode';
-  document.getElementById('hint-text').textContent='點左島 → 再點右島相同數字，它會自動加入公因數海灣';
+  document.getElementById('hint-text').textContent='點左島 → 再點右島相同數字，自動加入公因數海灣';
   document.getElementById('btn-main').textContent='🏆 確認公因數';
   document.getElementById('zone-gcd').className='gcd-zone';
-  renderZone('a'); renderZone('b'); renderZone('gcd');
-  renderPool();
+  renderAll();
 }
 
 function checkGcd(){
   const ug=new Set(chipsGcd),sg=new Set(correctGcd);
   const ok=[...sg].every(v=>ug.has(v))&&[...ug].every(v=>sg.has(v));
   const fb=document.getElementById('feedback');
-  scoreTotal++;
-  document.getElementById('sc-total').textContent=scoreTotal;
+  scoreTotal++; document.getElementById('sc-total').textContent=scoreTotal;
   if(ok){
     stage='done'; scoreRight++;
     document.getElementById('sc-right').textContent=scoreRight;
     fb.textContent='🎉 完全正確！公因數全部找到了！';
     fb.className='feedback ok';
-    document.getElementById('zone-gcd').classList.add('correct');
-    document.getElementById('zone-a').classList.add('correct');
-    document.getElementById('zone-b').classList.add('correct');
+    ['a','b','gcd'].forEach(z=>zoneEl(z).classList.add('correct'));
     document.getElementById('gcd-note').innerHTML='⭐ 最大公因數是 <b>'+gcd(numA,numB)+'</b>';
     document.getElementById('btn-main').disabled=true;
   } else {
     fb.className='feedback bad';
-    const missing=[...sg].filter(v=>!ug.has(v));
-    const extra=[...ug].filter(v=>!sg.has(v));
     let msg='再想想！';
-    if(missing.length) msg+=' 還有公因數沒找到。';
-    if(extra.length) msg+=' 有數字不是公因數。';
+    if([...sg].some(v=>!ug.has(v))) msg+=' 還有公因數沒找到。';
+    if([...ug].some(v=>!sg.has(v))) msg+=' 有數字不是公因數。';
     fb.textContent=msg;
     document.querySelectorAll('#zone-gcd .chip').forEach(c=>{
       if(!sg.has(Number(c.textContent))){ c.classList.add('shake'); setTimeout(()=>c.classList.remove('shake'),400); }
